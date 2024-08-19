@@ -2,8 +2,11 @@ import * as vscode from 'vscode';
 
 
 export default async function initSecrets(context: vscode.ExtensionContext) {
-	if (!await context.secrets.get("leekwars_cookie")) {
+	if (!await context.secrets.get("leekwars_password")) {
 		await getCredentials(context);
+	}
+	if (!await context.secrets.get("leekwars_cookie") || !await verifyToken(context)) {
+		vscode.window.showWarningMessage("bad token, getting new token...");
 		await getToken(context);
 	}
 	if (await context.secrets.get("leekwars_cookie")) { return true; }
@@ -47,4 +50,18 @@ export async function getToken(context: vscode.ExtensionContext) {
 			}
 			context.secrets.store("leekwars_cookie", cookie);
 		});
+}
+
+export async function verifyToken(context: vscode.ExtensionContext) {
+	return await fetch("https://leekwars.com/api/farmer/get-from-token", {
+		method: 'GET',
+		headers: new Headers([
+			["Content-Type", "application/json"],
+			['Cookie', await context.secrets.get("leekwars_cookie") || ""]
+		])
+	}).then(async response => {
+		const jsonResponse = JSON.parse(await response.text());
+		if (jsonResponse.error === 'wrong_token') {return false;}
+		return true;
+	});
 }

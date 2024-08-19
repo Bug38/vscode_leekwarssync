@@ -16,6 +16,14 @@
       {
         "command": "leekwarssync.init",
         "title": "leekwars Sync: Initialize extension"
+      },
+      {
+        "command": "leekwarssync.pullall",
+        "title": "leekwars Sync: Pull all AIs"
+      },
+      {
+        "command": "leekwarssync.pushall",
+        "title": "leekwars Sync: Push all AIs"
       }
     ],
     "configuration": {
